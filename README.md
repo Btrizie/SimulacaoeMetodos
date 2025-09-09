@@ -66,3 +66,82 @@ Implementar um simulador de filas orientado a eventos utilizando números pseudo
             - distribuição de probabilidades
             - número de clientes atendidos
     fim
+
+## M6: 
+Aprimorar o simulador de forma a prepará-lo a aceitar uma rede de filas com topologia genérica (tandem), ou seja, a entrada de uma fila é a saída da "anterior".
+
+    início:
+        inicializar variáveis globais
+        count ← limite de números pseudoaleatórios
+        relógio ← 0
+        criar duas filas (Fila1 e Fila2) com:
+            - número de servidores
+            - capacidade total
+            - intervalos de chegada/serviço
+            - contadores zerados (clientes, tempos de estado)
+    
+        criar escalonador de eventos vazio
+        agendar primeira chegada externa em Fila1 no tempo 1.5
+    
+        enquanto (existirem eventos) e (count > 0) faça:
+            evento ← remover próximo evento do escalonador
+            atualizar estatísticas de cada fila (tempo acumulado no estado atual)
+            avançar relógio para tempo do evento
+    
+            se evento for CHEGADA_EXTERNA em Fila1 então
+                decrementar count
+                gerar próximo tempo de chegada e agendar
+                processar chegada em Fila1:
+                    se houver servidor livre então
+                        ocupar servidor
+                        agendar SAÍDA de Fila1
+                    senão se houver espaço na fila então
+                        cliente entra na fila
+                    senão
+                        cliente é perdido
+                    fim se
+            fim se
+    
+            se evento for SAÍDA_FILA1 então
+                processar saída em Fila1:
+                    cliente atendido++
+                    se fila não vazia então
+                        remover cliente da fila
+                        decrementar count
+                        agendar próxima SAÍDA
+                    senão
+                        liberar servidor
+                    fim se
+                processar chegada em Fila2 (cliente transferido da Fila1)
+    
+            fim se
+    
+            se evento for SAÍDA_FILA2 então
+                processar saída em Fila2:
+                    cliente atendido++
+                    se fila não vazia então
+                        remover cliente da fila
+                        decrementar count
+                        agendar próxima SAÍDA
+                    senão
+                        liberar servidor
+                    fim se
+            fim se
+    
+        fim enquanto
+    
+        calcular distribuição de probabilidade:
+            para cada fila i:
+                para cada estado k:
+                    prob[k] ← tempo_estado[k] / tempo_total
+    
+        imprimir resultados para cada fila:
+            - configuração (G/G/servidores/capacidade)
+            - tempo acumulado por estado
+            - distribuição de probabilidades
+            - número de clientes atendidos
+            - número de clientes perdidos
+    
+        imprimir tempo global da simulação
+    fim
+
